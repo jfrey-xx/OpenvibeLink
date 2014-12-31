@@ -1,0 +1,6 @@
+language: java
+before_install:
+  - cd libs && ./install.sh
+after_install:
+  - ./createLibrary.sh
+
