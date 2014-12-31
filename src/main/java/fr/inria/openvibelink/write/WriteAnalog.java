@@ -11,6 +11,10 @@ import processing.net.*;
 import java.nio.ByteBuffer;
 import processing.core.PApplet;
 import static processing.core.PApplet.arrayCopy;
+import static processing.core.PApplet.println;
+import static processing.core.PApplet.lerp;
+import static processing.core.PApplet.floor;
+import static processing.core.PApplet.ceil;
 
 // send a raw stream of float in TCP.
 
