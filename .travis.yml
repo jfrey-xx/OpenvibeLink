@@ -9,3 +9,6 @@ deploy:
     secure: TdQ/JwwC93aW30NRuMEo21UB1s0l94O1yNJ5n8KXgE3s2Ket7M31khoVfbJf3s7X/cYhy0/9e3Mleek5c1FAX7TlhKG+Zx3lrS7gnYOQbZLwMdewhtqk3rDbOfDXEEnxYy5GvKfwon8pjqg/htQusH5IzNeO+KC7sQ8c1UGBiWg=
   file: OpenvibeLink.tgz
   skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
