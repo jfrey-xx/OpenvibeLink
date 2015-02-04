@@ -81,7 +81,7 @@ public class WriteAnalog {
     this.samplingFactor = samplingFactor;
   }
 
-  private void setDebug(boolean debug) {
+  public void setDebug(boolean debug) {
     this.debug = debug;
   }
 
