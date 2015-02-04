@@ -18,7 +18,7 @@ import static processing.core.PApplet.ceil;
 
 // send a raw stream of float in TCP.
 
-// NB: Measures elapsed time between 2 calls in order to keep up with asked sample rate (oversampling by repeating values). This mechasism is analogous to (and doesn't interfere with) the drift correction feature of the openvibe acquisition server. 
+// NB: Measures elapsed time between 2 calls in order to keep up with asked sample rate (oversampling by repeating values). This mechasism is analogous to (and doesn't interfere with) the drift correction feature of the openvibe acquisition server. Linear interpolation to sync, do not proceed to any filtering to remove aliasign though.
 
 // In openvibe acquisiton server: generic raw telnet reader, big endian, 32 bits float
 
@@ -44,7 +44,6 @@ public class WriteAnalog {
 
   // other solution, better used with round ratio, force the number of data points written in TCP
   // e.g. : to convert from 250Hz to 256, give buffer of length 125 to write(float [][]) and use a 1.024 ratio to obtain 128 points in output
-  // WARNING: no way to avoid jitter if the fraction is not exact (e.g. 1/3 is not good)
   // > 1 for oversampling, < 1 for downsampling
   private float samplingFactor = -1;
 
@@ -124,7 +123,7 @@ public class WriteAnalog {
       }
       tick = now;
     } else if (samplingFactor > 0) {
-      neededDuplications = neededDuplications * samplingFactor;
+      neededDuplications = neededDuplications * samplingFactor + leftoverDuplications;
     }
 
     // since we can't send only a fraction to be perfect, at the moment we're ok with an approximation
@@ -140,7 +139,6 @@ public class WriteAnalog {
 
   // this method, on the other hand, pipe buffered data but do not care about sample rate
   // data[nbChans][nbPoints]
-  // TODO: interpolation
   // TODO: check number of channels
   public void write(float[][] data) {
 
@@ -167,7 +165,7 @@ public class WriteAnalog {
       }
       tick = now;
     } else if (samplingFactor > 0) {
-      neededDuplications = neededDuplications * samplingFactor;
+      neededDuplications = neededDuplications * samplingFactor + leftoverDuplications;
     }
 
     // since we can't send only a fraction to be perfect, at the moment we're ok with an approximation
@@ -197,8 +195,6 @@ public class WriteAnalog {
 
       // fill float buffer and then pass it to TCPWriteAnalog to send over network
       for (int i = 0; i < nbChans; i++) {
-
-        // fill float buffer and then pass it to TCPWriteAnalog to send over network
         // fetch float value
         float chan = 0;
         if (i < data.length) {
@@ -211,7 +207,7 @@ public class WriteAnalog {
             chan  = lerp(data[i][origPointPrev], data[i][origPointNext], origPoint - origPointPrev);
           }
         }
-        // copy byte value to the correct place of the buffer buffer
+        // copy byte value to the correct place of the buffer
         arrayCopy(float2ByteArray(chan), 0, buffer, i*nbBytesPerFloat, nbBytesPerFloat);
       }
       // send channels values for this chunk
